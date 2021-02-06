@@ -34,7 +34,7 @@ def request_page_w_headers(url):
         exit()
     else:
         content = response.content
-        print("Found page!")
+        #print("Found page!")
     return(content)
  
 def get_soup(link):
@@ -173,13 +173,17 @@ class playlistInfo2:
     #def synopsis(self):
     #    return 
 #soup2.find_all("li", {"class":"pagination__page pagination__page--offset14 pagination__page--last"})
+
+# scraping show index site for information and links to all shows:
 def all_gp_ww_shows_in_df(linktoallshows=linktoallshows): 
+    print("Scraping show information...")
     show_access=[]
     soup2=get_soup(linktoallshows)
+    #get subpages of bbc show:
     lastpage=soup2.find_all("li", {"class":"pagination__page pagination__page--offset14 pagination__page--last"})[0].text.strip()
-    
-    for page in range(1,int(lastpage)+1):
-        print(page)
+    #scraping all subpages for show info:
+    for page in tqdm(range(1,int(lastpage)+1)):
+        #print(page)
         next_page=linktoallshows+"?page="+str(page)
         soup2=get_soup(next_page)
         
@@ -189,8 +193,9 @@ def all_gp_ww_shows_in_df(linktoallshows=linktoallshows):
                 titleshow=p.find_all("a")[0].text
                 shortsynopsis=p.find_all("p")[0].text.strip()
                 show_access.append({"link":link_to_show, "title":titleshow,"shortsynopsis":shortsynopsis})
-            
+    #make DF with all info:        
     df_access_to_all_shows=pd.DataFrame(show_access)
+    print("\n \nFound {} pages and created a DataFrame with info of {} shows".format(page,(len(df_access_to_all_shows))))
     return df_access_to_all_shows
  
 linktoallshows="https://www.bbc.co.uk/programmes/b01fm4ss/episodes/guide"
